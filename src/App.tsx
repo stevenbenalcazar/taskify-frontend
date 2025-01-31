@@ -1,4 +1,3 @@
-import React from "react"; 
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Container, Typography, Button, Box } from "@mui/material";
 import Sidebar from "./components/Sidebar";
@@ -23,11 +22,10 @@ const AppContent = () => {
             path="/"
             element={
               <Container maxWidth="md" style={{ textAlign: "center", marginTop: "50px" }}>
-                <Typography variant="h3" color="primary">
-                  Bienvenido a TASKIFY
+                <Typography variant="h3" color="#6A1B9A">
+                  TASKIFY
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
-                  Gestión de tareas con Material UI
                 </Typography>
                 <Button variant="contained" color="primary" style={{ marginTop: "20px" }}>
                   Empezar
