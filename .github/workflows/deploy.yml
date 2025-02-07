@@ -1,0 +1,35 @@
+name: Deploy Taskify Frontend to AWS EC2
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando se haga un push a main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Clonar el repositorio
+      uses: actions/checkout@v3
+
+    - name: 🐳 Iniciar sesión en DockerHub
+      run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: 🛠️ Construir la imagen Docker
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend .
+
+    - name: 📤 Subir la imagen a DockerHub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+
+    - name: 🚀 Conectar a EC2 y actualizar el contenedor
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.AWS_EC2_HOST }}
+        username: ${{ secrets.AWS_EC2_USER }}
+        key: ${{ secrets.AWS_PRIVATE_KEY }}
+        script: |
+          docker stop taskify-frontend || true
+          docker rm taskify-frontend || true
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+          docker run -d -p 80:80 --name taskify-frontend ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
