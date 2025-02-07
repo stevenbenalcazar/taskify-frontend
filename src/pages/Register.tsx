@@ -42,9 +42,12 @@ const Register = () => {
       console.log("Registro exitoso:", data);
       navigate("/login"); // Redirigir al login después de registrarse
 
-    } catch (err: any) {
-      setError(err.message);
-    }
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Ocurrió un error desconocido.");
+    }}
   };
 
   return (

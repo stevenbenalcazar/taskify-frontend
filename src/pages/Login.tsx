@@ -35,10 +35,13 @@ const Login = () => {
       console.log("Inicio de sesión exitoso:", data);
       navigate("/"); // Redirigir al usuario a la página principal
 
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Ocurrió un error desconocido.");
+      }}
+    };
 
   return (
     <Container maxWidth="sm">
