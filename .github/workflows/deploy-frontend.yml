@@ -23,13 +23,15 @@ jobs:
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
 
     - name: 🚀 Conectar a EC2 y actualizar el contenedor
-      uses: appleboy/ssh-action@v0.1.4
+      uses: fifsky/ssh-action@master
       with:
         host: ${{ secrets.AWS_EC2_HOST }}
-        username: ${{ secrets.AWS_EC2_USER }}
+        user: ${{ secrets.AWS_EC2_USER }}
         key: ${{ secrets.AWS_PRIVATE_KEY }}
-        script: |
+        port: 22
+        command: |
           docker stop taskify-frontend || true
           docker rm taskify-frontend || true
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
           docker run -d -p 80:80 --name taskify-frontend ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+    
