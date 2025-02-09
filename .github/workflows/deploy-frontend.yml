@@ -1,9 +1,9 @@
-name: Deploy Taskify Frontend to AWS EC2
+name: Deploy Taskify Frontend to AWS EC2  
 
 on:
   push:
     branches:
-      - main  # Se ejecuta en cada push a main
+      - main  # Se ejecuta cuando se haga un push a main
 
 jobs:
   deploy:
@@ -14,27 +14,58 @@ jobs:
       uses: actions/checkout@v3
 
     - name: 🐳 Iniciar sesión en DockerHub
-      run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-    
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      run: |
+        if [[ -z "$DOCKER_USERNAME" || -z "$DOCKER_PASSWORD" ]]; then
+          echo "❌ ERROR: DOCKERHUB_USERNAME o DOCKERHUB_PASSWORD no están configurados."
+          exit 1
+        fi
+        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
     - name: 🛠️ Construir la imagen Docker
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/taskify-frontend .
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend .
 
     - name: 📤 Subir la imagen a DockerHub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
 
-    - name: 🚀 Conectar a EC2 y actualizar el contenedor
-      uses: fifsky/ssh-action@master
+    - name: 🚀 Conectar a EC2, instalar dependencias y actualizar el contenedor
+      uses: appleboy/ssh-action@v0.1.7
       with:
-        host: ${{ secrets.EC2_FRONTEND_HOST }}
-        user: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        host: ${{ secrets.AWS_EC2_HOST }}
+        username: ${{ secrets.AWS_EC2_USER }}
+        key: ${{ secrets.AWS_PRIVATE_KEY }}
         port: 22
-        command: |
-          echo "✅ Conectado a EC2..."
-          sudo systemctl restart docker  # Reiniciar Docker por si está inactivo
+        script: |
+          echo "✅ Conectado a EC2"
+          
+          # Instalar Docker si no está instalado
+          if ! command -v docker &> /dev/null
+          then
+            echo "🐳 Instalando Docker..."
+            sudo yum update -y
+            sudo yum install -y docker
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker $USER
+          fi
+
+          # Limpiar imágenes antiguas
+          echo "🧹 Limpiando imágenes antiguas..."
           docker stop taskify-frontend || true
           docker rm taskify-frontend || true
-          docker pull ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
-          docker run -d -p 80:80 --restart unless-stopped --name taskify-frontend ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
-          echo "✅ Despliegue completado."
+          docker system prune -af || true
+
+          # Descargar la última imagen
+          echo "📥 Descargando la última imagen de DockerHub..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+
+          # Ejecutar el contenedor
+          echo "🚀 Ejecutando Taskify Frontend..."
+          docker run -d -p 80:80 --name taskify-frontend ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+
+          # Verificar si el contenedor está corriendo
+          docker ps | grep taskify-frontend || (echo "❌ ERROR: El contenedor no se inició correctamente." && exit 1)
+
+          echo "✅ Despliegue completado exitosamente."
