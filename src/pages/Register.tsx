@@ -3,6 +3,9 @@ import { TextField, Button, Container, Typography, Box, Alert } from "@mui/mater
 import { useNavigate } from "react-router-dom";
 import LogoName from "../assets/taskify-name.png"; // Importamos solo el logo con nombre
 
+// 🔹 Definir la URL de la API de manera centralizada
+const API_URL = import.meta.env.VITE_API_URL || "http://54.167.50.122:3000";
+
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,38 +14,37 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   const handleRegister = async () => {
     setError(""); // Reiniciar errores antes de enviar
-  
+
     if (!name || !email || !password || !confirmPassword) {
       setError("Por favor, completa todos los campos.");
       return;
     }
-  
+
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden.");
       return;
     }
-  
+
     try {
-      const response = await fetch("http://54.167.50.122:3000/api/users/register", { // 🔹 URL CORRECTA
+      const response = await fetch(`${API_URL}/api/users/register`, { // 🔹 Ahora toma la URL dinámica
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: name, email, password }), // 🔹 "name" ahora es "username"
+        body: JSON.stringify({ username: name, email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.message || "Error al registrar");
       }
-  
+
       console.log("Registro exitoso:", data);
       navigate("/login"); // Redirigir al login después de registrarse
-  
+
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -51,7 +53,6 @@ const Register = () => {
       }
     }
   };
-  
 
   return (
     <Container maxWidth="sm">
