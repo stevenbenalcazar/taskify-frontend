@@ -1,9 +1,9 @@
-name: Deploy Taskify Frontend to AWS EC2 
+name: Deploy Taskify Frontend to AWS EC2
 
 on:
   push:
     branches:
-      - main  # Se ejecuta cuando se haga un push a main
+      - main  # Se ejecuta en cada push a main
 
 jobs:
   deploy:
@@ -14,24 +14,26 @@ jobs:
       uses: actions/checkout@v3
 
     - name: 🐳 Iniciar sesión en DockerHub
-      run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
     - name: 🛠️ Construir la imagen Docker
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend .
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/taskify-frontend .
 
     - name: 📤 Subir la imagen a DockerHub
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
 
     - name: 🚀 Conectar a EC2 y actualizar el contenedor
       uses: fifsky/ssh-action@master
       with:
-        host: ${{ secrets.AWS_EC2_HOST }}
-        user: ${{ secrets.AWS_EC2_USER }}
-        key: ${{ secrets.AWS_PRIVATE_KEY }}
+        host: ${{ secrets.EC2_FRONTEND_HOST }}
+        user: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         command: |
+          echo "✅ Conectado a EC2..."
+          sudo systemctl restart docker  # Reiniciar Docker por si está inactivo
           docker stop taskify-frontend || true
           docker rm taskify-frontend || true
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
-          docker run -d -p 80:80 --name taskify-frontend ${{ secrets.DOCKERHUB_USERNAME }}/taskify-frontend
-    
+          docker pull ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
+          docker run -d -p 80:80 --restart unless-stopped --name taskify-frontend ${{ secrets.DOCKER_USERNAME }}/taskify-frontend
+          echo "✅ Despliegue completado."
