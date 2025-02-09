@@ -1,4 +1,4 @@
-# 1️⃣ Usar una imagen de Node.js para construir la app
+# 1️⃣ Construir el frontend
 FROM node:18 AS builder
 WORKDIR /app
 COPY . .
@@ -8,9 +8,8 @@ RUN npm run build
 # 2️⃣ Servir con Nginx
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY default.conf.template /etc/nginx/templates/default.conf.template  
 
-# Exponer el puerto 80 para acceder al frontend
-EXPOSE 80
+# 🔹 Guardamos como template
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "envsubst '$LOGIN_SERVICE_URL $USER_SERVICE_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
