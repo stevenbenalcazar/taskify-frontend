@@ -1,4 +1,4 @@
-# 1️⃣ Usar una imagen de Node.js para construir la app
+# 1️⃣ Usar Node.js para construir la aplicación
 FROM node:18 AS builder
 WORKDIR /app
 COPY . .
@@ -9,8 +9,8 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 🔹 Copiar el template para configurar las variables de entorno
+# 🔹 Copiar el template para configurar variables de entorno
 COPY default.conf.template /etc/nginx/templates/default.conf.template  
 
-# 🔹 Habilitar la sustitución de variables de entorno
+# 🔹 Sustituir variables de entorno y ejecutar Nginx
 CMD ["sh", "-c", "envsubst '$LOGIN_SERVICE_URL $USER_SERVICE_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
