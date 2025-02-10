@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import LogoName from "../assets/taskify-name.png"; // Importamos solo el logo con nombre
 
 // 🔹 Definir la URL de la API de manera centralizada
-const API_URL = import.meta.env.VITE_API_URL || "http://54.167.50.122:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://54.167.171.189:3000";
 
 const Register = () => {
   const [name, setName] = useState("");
