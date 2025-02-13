@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/auth': {
-        target: 'http://34.234.86.131:3001', // LOGIN-SERVICE
+        target: 'http://3.229.31.59:3001', // LOGIN-SERVICE
         changeOrigin: true,
         secure: false,
       },
