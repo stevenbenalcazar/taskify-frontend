@@ -18,7 +18,8 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("https://tu-api.com/auth/login", {
+      const response = await fetch("http://3.229.31.59:3000/auth/login", {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
