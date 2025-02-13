@@ -12,13 +12,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     setError(""); // Reiniciar errores antes de enviar
+    setLoading(true);
 
     if (!email || !password) {
       setError("Por favor, completa todos los campos.");
+      setLoading(false);
       return;
     }
-
-    setLoading(true); // Mostrar carga mientras se procesa la solicitud
 
     try {
       const response = await fetch("http://3.229.31.59:3000/auth/login", {
@@ -42,22 +42,30 @@ const Login = () => {
 
       const data = await response.json();
       console.log("Inicio de sesión exitoso:", data);
-      navigate("/"); // Redirigir al usuario a la página principal
 
-    } catch (err) {
+      // ✅ Verificar si el backend devuelve un token válido
+      if (!data.token) {
+        throw new Error("El servidor no devolvió un token de autenticación.");
+      }
+
+      // ✅ Guardar el token en localStorage
+      localStorage.setItem("token", data.token);
+
+      // ✅ Redirigir al usuario después del inicio de sesión exitoso
+      navigate("/dashboard");
+
+    } catch (err: unknown) {
       console.error("Error en el login:", err);
-
-      if (err instanceof TypeError) {
-        setError("No se pudo conectar con el servidor. Verifica tu conexión.");
-      } else if (err instanceof Error) {
+    
+      if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Ocurrió un error desconocido.");
       }
     } finally {
-      setLoading(false); // Ocultar carga después de la solicitud
+      setLoading(false); // ✅ Mover fuera del catch para asegurar su ejecución
     }
-  };
+  }; // ✅ Aquí cerramos la función handleLogin correctamente
 
   return (
     <Container maxWidth="sm">
