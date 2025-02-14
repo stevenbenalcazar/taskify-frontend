@@ -125,7 +125,7 @@ const Register = () => {
             REGISTRARSE
           </Button>
           <Typography variant="body2" sx={{ mt: 2, textAlign: "center", color: "#6A1B9A" }}>
-            ¿Ya tienes cuenta jean? <a href="/login" style={{ color: "#6A1B9A", fontWeight: "bold" }}>Inicia sesión aquí</a>
+            ¿Ya tienes cuenta gabriel? <a href="/login" style={{ color: "#6A1B9A", fontWeight: "bold" }}>Inicia sesión aquí</a>
           </Typography>
         </Box>
       </Box>
