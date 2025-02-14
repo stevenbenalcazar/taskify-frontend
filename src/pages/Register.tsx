@@ -68,7 +68,7 @@ const Register = () => {
       >
         {/* Logo en la parte superior (grande) */}
         <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 3 }}>
-          <img src={LogoName} alt="Taskify Names" style={{ height: "80px" }} />
+          <img src={LogoName} alt="Taskify Name" style={{ height: "80px" }} />
         </Box>
 
         <Typography variant="h4" color="#6A1B9A" sx={{ fontWeight: "bold" }}>
@@ -125,7 +125,7 @@ const Register = () => {
             REGISTRARSE
           </Button>
           <Typography variant="body2" sx={{ mt: 2, textAlign: "center", color: "#6A1B9A" }}>
-            ¿Ya tienes cuenta? <a href="/login" style={{ color: "#6A1B9A", fontWeight: "bold" }}>Inicia sesión aquí</a>
+            ¿Ya tienes cuenta elian? <a href="/login" style={{ color: "#6A1B9A", fontWeight: "bold" }}>Inicia sesión aquí</a>
           </Typography>
         </Box>
       </Box>
