@@ -68,7 +68,7 @@ const Register = () => {
       >
         {/* Logo en la parte superior (grande) */}
         <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 3 }}>
-          <img src={LogoName} alt="Taskify Name" style={{ height: "80px" }} />
+          <img src={LogoName} alt="Taskify Names" style={{ height: "80px" }} />
         </Box>
 
         <Typography variant="h4" color="#6A1B9A" sx={{ fontWeight: "bold" }}>
