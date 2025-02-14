@@ -26,7 +26,7 @@ import WorkspacesIcon from "@mui/icons-material/Business";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import taskifyLogo from "../assets/taskify-logo.png"; // Logo de fondo degradado
-import taskifyName from "../assets/taskify-name.png"; // Logo con nombre
+import taskifyName from "../assets/taskify-name.png"; // Logo con 
 import { Menu, MenuItem, Dialog, DialogTitle, DialogContent } from "@mui/material";
 
 
@@ -149,6 +149,7 @@ const Sidebar = () => {
           <img src={taskifyName} alt="Taskify" style={{ height: "50px" }} />
         </Toolbar>
         <Divider sx={{ backgroundColor: "white" }} />
+
 
         <List>
           {/* Tableros */}

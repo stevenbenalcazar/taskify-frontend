@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { TextField, Button, Container, Typography, Box, Alert } from "@mui/material";
+import { useState } from "react"; 
+import { TextField, Button, Container, Typography, Box, Alert, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom"; 
 import LogoName from "../assets/taskify-name.png"; 
 
@@ -7,18 +7,21 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     setError(""); // Reiniciar errores antes de enviar
+    setLoading(true);
 
     if (!email || !password) {
       setError("Por favor, completa todos los campos.");
+      setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch("https://tu-api.com/auth/login", {
+      const response = await fetch("http://3.229.31.59:3000/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,22 +29,43 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
+        let errorMessage = "Error al iniciar sesión";
+        try {
+          const data = await response.json();
+          errorMessage = data.message || errorMessage;
+        } catch (jsonError) {
+          console.error("Error al parsear la respuesta JSON:", jsonError);
+        }
+        throw new Error(errorMessage);
       }
 
+      const data = await response.json();
       console.log("Inicio de sesión exitoso:", data);
-      navigate("/"); // Redirigir al usuario a la página principal
+
+      // ✅ Verificar si el backend devuelve un token válido
+      if (!data.token) {
+        throw new Error("El servidor no devolvió un token de autenticación.");
+      }
+
+      // ✅ Guardar el token en localStorage
+      localStorage.setItem("token", data.token);
+
+      // ✅ Redirigir al usuario después del inicio de sesión exitoso
+      navigate("/dashboard");
 
     } catch (err: unknown) {
+      console.error("Error en el login:", err);
+    
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Ocurrió un error desconocido.");
-      }}
-    };
+      }
+    } finally {
+      setLoading(false); // ✅ Mover fuera del catch para asegurar su ejecución
+    }
+  }; // ✅ Aquí cerramos la función handleLogin correctamente
 
   return (
     <Container maxWidth="sm">
@@ -86,6 +110,7 @@ const Login = () => {
           <Button 
             variant="contained" 
             fullWidth 
+            disabled={loading} // Deshabilitar el botón mientras se procesa
             sx={{ 
               mt: 3, 
               backgroundColor: "#6A1B9A", 
@@ -94,7 +119,7 @@ const Login = () => {
             }} 
             onClick={handleLogin}
           >
-            Iniciar Sesión
+            {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Iniciar Sesión"}
           </Button>
           <Typography variant="body2" sx={{ mt: 2, textAlign: "center", color: "#6A1B9A" }}>
             ¿No tienes cuenta? <a href="/register" style={{ color: "#6A1B9A", fontWeight: "bold" }}>Regístrate aquí</a>
