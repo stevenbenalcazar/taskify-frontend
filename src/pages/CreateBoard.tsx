@@ -1,29 +1,19 @@
-import { useState } from 'react';
-import axios from 'axios';
-import Lists from './Lists';
-import { Container, Box, Typography, TextField, Button } from '@mui/material';
+import { useState } from "react";
+import TaskifyBoard from "../components/TaskifyBoard";
+import { Container, Box, Typography, TextField, Button } from "@mui/material";
 
-const CreateBoard = () => {
+interface CreateBoardProps {
+  closeModal: () => void;
+}
+
+const CreateBoard: React.FC<CreateBoardProps> = ({ closeModal }) => {
   const [name, setName] = useState('');
   const [workspaceId, setWorkspaceId] = useState('');
-  const [board, setBoard] = useState(null);
-  const [message, setMessage] = useState('');
+  const [showBoard, setShowBoard] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('http://52.45.52.31:3000/boards', {
-        name,
-        workspace_id: workspaceId,
-      });
-      setBoard(response.data);
-      setMessage(`Board Created: ${response.data.name}`);
-      setName('');
-      setWorkspaceId('');
-    } catch (error) {
-      setMessage('Error creating board');
-      console.error(error);
-    }
+  const handleCreate = () => {
+    setShowBoard(true);
+    // NO LLAMES closeModal aquí si quieres que siga abierto
   };
 
   return (
@@ -32,13 +22,12 @@ const CreateBoard = () => {
         <Typography variant="h4" gutterBottom>
           Create Board
         </Typography>
-        <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '500px' }}>
+        <form style={{ width: '100%', maxWidth: '500px' }}>
           <TextField 
             fullWidth 
             label="Name" 
             value={name} 
             onChange={(e) => setName(e.target.value)}
-            required 
             margin="normal"
           />
           <TextField 
@@ -46,16 +35,34 @@ const CreateBoard = () => {
             label="Workspace ID" 
             value={workspaceId} 
             onChange={(e) => setWorkspaceId(e.target.value)}
-            required 
             margin="normal"
           />
-          <Button variant="contained" color="primary" type="submit" fullWidth>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            onClick={handleCreate} // ✅ NO LLAMES closeModal AQUÍ
+          >
             Create
           </Button>
+          <Button 
+            variant="outlined"
+            fullWidth 
+            onClick={closeModal} // ✅ Agregar botón para cerrar manualmente
+          >
+            Cancelar
+          </Button>
         </form>
-        {message && <Typography color="error" mt={2}>{message}</Typography>}
       </Box>
-      {board && <Lists />} {/* Renderizar Lists después de crear un tablero */}
+
+      {showBoard && (
+        <Box mt={5} width="100%">
+          <Typography variant="h5" gutterBottom>
+            {name || "Nuevo Tablero"}
+          </Typography>
+          <TaskifyBoard />
+        </Box>
+      )}
     </Container>
   );
 };

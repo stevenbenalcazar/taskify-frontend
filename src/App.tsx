@@ -1,13 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { Container, Typography, Button, Box } from "@mui/material";
+import { useState } from "react";
+import { Container, Typography, Button, Box, Dialog } from "@mui/material";
 import Sidebar from "./components/Sidebar";
-import Login from "./pages/Login"; 
-import Register from "./pages/Register"; 
-import CreateBoard from "./pages/CreateBoard"; // Importamos el nuevo componente
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import CreateBoard from "./pages/CreateBoard";
 
 const AppContent = () => {
   const location = useLocation();
   const hideSidebar = location.pathname === "/login" || location.pathname === "/register";
+  const [open, setOpen] = useState(false);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -16,7 +18,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/create-board" element={<CreateBoard />} /> {/* Nueva ruta */}
+          <Route path="/create-board" element={<CreateBoard closeModal={() => setOpen(false)} />} /> {/* ✅ Pasa la prop closeModal */}
           <Route
             path="/"
             element={
@@ -25,15 +27,16 @@ const AppContent = () => {
                   TASKIFY
                 </Typography>
                 <Typography variant="subtitle1" color="textSecondary">
+                  Organiza tus tareas con tableros interactivos.
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  style={{ marginTop: "20px" }}
-                  href="/create-board" // Botón para ir a la creación de tableros
-                >
+                <Button variant="contained" color="primary" style={{ marginTop: "20px" }} onClick={() => setOpen(true)}>
                   Crear Tablero
                 </Button>
+
+                {/* ✅ Muestra el modal con CreateBoard */}
+                <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
+                  <CreateBoard closeModal={() => setOpen(false)} />
+                </Dialog>
               </Container>
             }
           />
