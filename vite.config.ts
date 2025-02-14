@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'process.env': {} // Agrega esto para evitar el error en react-trello
+  },
   server: {
     proxy: {
       '/api/auth': {
@@ -16,7 +19,7 @@ export default defineConfig({
         secure: false,
       },
       '/api/board': {
-        target: 'http://52.45.52.31:4000', // USER-SERVICE
+        target: 'http://52.45.52.31:4000', // BOARD-SERVICE
         changeOrigin: true,
         secure: false,
       },
